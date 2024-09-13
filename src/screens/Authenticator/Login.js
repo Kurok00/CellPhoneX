@@ -1,24 +1,32 @@
-// src/screens/Authenticator/Login.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import Modal from 'react-native-modal';
 import { login } from '../../mockapi';
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secureTextEntry, setSecureTextEntry] = useState(true);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   const handleLogin = async () => {
     try {
       const user = await login(email, password);
       if (user) {
-        Alert.alert('Đăng nhập thành công!', `Chào mừng, ${email}`);
-        navigation.navigate('ProductList');
+        setModalMessage(`Đăng nhập thành công! Chào mừng, ${email}`);
+        setModalVisible(true);
+        setTimeout(() => {
+          setModalVisible(false);
+          navigation.navigate('Main');
+        }, 2000); // Tự động điều hướng sau 2 giây
       } else {
-        Alert.alert('Lỗi', 'Email hoặc mật khẩu không đúng.');
+        setModalMessage('Email hoặc mật khẩu không đúng.');
+        setModalVisible(true);
       }
     } catch (error) {
-      Alert.alert('Lỗi', 'Có lỗi xảy ra trong quá trình đăng nhập.');
+      setModalMessage('Có lỗi xảy ra trong quá trình đăng nhập.');
+      setModalVisible(true);
       console.error(error);
     }
   };
@@ -44,7 +52,7 @@ const Login = ({ navigation }) => {
           placeholderTextColor="#B0B0B0"
         />
         <TouchableOpacity style={styles.eyeIcon} onPress={() => setSecureTextEntry(!secureTextEntry)}>
-          <Text>{secureTextEntry ? '👁️' : '🙈'}</Text>
+          <Text>{secureTextEntry ? '🙈🙈' : '👁️👁️'}</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -53,6 +61,16 @@ const Login = ({ navigation }) => {
       <Text style={styles.signupText}>
         Don't have an account? <Text style={styles.signupLink} onPress={() => navigation.navigate('Signup')}>Sign Up</Text>
       </Text>
+
+      {/* Modal Tùy Chỉnh */}
+      <Modal isVisible={isModalVisible}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>{modalMessage}</Text>
+          <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
+            <Text style={styles.modalButtonText}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -63,10 +81,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 20,
     backgroundColor: '#1E1E1E',
+    marginTop: 30
   },
   logo: {
-    width: 200, // Điều chỉnh kích thước theo ý muốn
-    height: 150, // Điều chỉnh kích thước theo ý muốn
+    width: 200,
+    height: 150,
     alignSelf: 'center',
     marginBottom: 20,
   },
@@ -109,6 +128,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 15,
     top: 15,
+  },
+  modalContent: {
+    backgroundColor: '#2A2A2A',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#FFAA00',
+    borderRadius: 8,
+    padding: 10,
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
 

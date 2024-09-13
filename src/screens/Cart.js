@@ -1,10 +1,21 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, SafeAreaView, Alert } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  SafeAreaView,
+  Modal,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useCart } from './CartData';
 
 const Cart = ({ navigation }) => {
   const { cart, removeFromCart, updateQuantity, setCart, setCartCount } = useCart();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
 
   const handleIncrease = (item) => {
     updateQuantity(item.id, item.quantity + 1);
@@ -19,15 +30,25 @@ const Cart = ({ navigation }) => {
   };
 
   const handleCheckout = () => {
-    Alert.alert('Thông báo', 'Thanh toán thành công!', [
-      {
-        text: 'OK',
-        onPress: () => {
-          setCart([]); // Xóa toàn bộ giỏ hàng
-          setCartCount(0); // Đặt lại số lượng giỏ hàng về 0
-        },
-      },
-    ]);
+    if (cart.length === 0) {
+      setErrorModalVisible(true); // Hiển thị modal thông báo lỗi
+    } else {
+      setModalVisible(true); // Hiển thị modal thanh toán
+    }
+  };
+
+  const confirmCheckout = () => {
+    setCart([]); // Xóa toàn bộ giỏ hàng
+    setCartCount(0); // Đặt lại số lượng giỏ hàng về 0
+    setModalVisible(false); // Đóng modal
+  };
+
+  const cancelCheckout = () => {
+    setModalVisible(false); // Đóng modal
+  };
+
+  const closeErrorModal = () => {
+    setErrorModalVisible(false); // Đóng modal thông báo lỗi
   };
 
   return (
@@ -62,6 +83,45 @@ const Cart = ({ navigation }) => {
       <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
         <Text style={styles.checkoutButtonText}>Thanh toán</Text>
       </TouchableOpacity>
+
+      {/* Modal thanh toán */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={modalVisible}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Xác nhận thanh toán</Text>
+            <Text style={styles.modalText}>Bạn có chắc chắn muốn thanh toán?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalButton} onPress={cancelCheckout}>
+                <Text style={styles.modalButtonText}>Huỷ</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalButton} onPress={confirmCheckout}>
+                <Text style={styles.modalButtonText}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal thông báo lỗi khi giỏ hàng rỗng */}
+      <Modal
+        transparent={true}
+        animationType="slide"
+        visible={errorModalVisible}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Icon name="alert-circle-outline" size={50} color="#FFAA00" />
+            <Text style={styles.modalTitle}>Có cái gì đâu mà thanh toán?</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={closeErrorModal}>
+              <Text style={styles.modalButtonText}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -142,6 +202,42 @@ const styles = StyleSheet.create({
   checkoutButtonText: {
     color: '#1E1E1E',
     fontSize: 18,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center', // Đặt modal ở giữa màn hình
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tối màu nền
+  },
+  modalContent: {
+    width: '80%', // Thay đổi width để modal không quá rộng
+    maxWidth: 400, // Giới hạn chiều rộng tối đa
+    padding: 20,
+    backgroundColor: '#2A2A2A',
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 5,
+    justifyContent: 'center', // Căn giữa nội dung
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 10,
+    textAlign: 'center', // Căn giữa tiêu đề
+  },
+  modalButton: {
+    backgroundColor: '#FFAA00',
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
+    width: '100%', // Đảm bảo nút hoàn toàn chiều rộng
+  },
+  modalButtonText: {
+    color: '#1E1E1E',
+    textAlign: 'center',
+    fontSize: 16,
+    textTransform: 'bold'
   },
 });
 

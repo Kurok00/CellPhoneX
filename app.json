@@ -18,13 +18,19 @@
       "adaptiveIcon": {
         "foregroundImage": "",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.heneken96.CellPhoneX"
     },
     "web": {
       "favicon": ""
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "4c541716-9ca5-49b7-a186-6e5b59bc8323"
+      }
+    }
   }
 }
