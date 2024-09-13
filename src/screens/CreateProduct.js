@@ -6,6 +6,7 @@ const CreateProduct = ({ navigation }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [salePrice, setSalePrice] = useState('');
+  const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
   const [products, setProducts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -13,13 +14,13 @@ const CreateProduct = ({ navigation }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  const apiKey = '59214ae01d29f2e'; // Thay thế bằng Client ID của bạn
+  const apiKey = '59214ae01d29f2e';
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       fetchProducts();
     });
-    
+
     return unsubscribe;
   }, [navigation]);
 
@@ -56,7 +57,7 @@ const CreateProduct = ({ navigation }) => {
       if (!response.ok) {
         throw new Error(data.message);
       }
-      return data.data.link; // URL của ảnh đã tải lên
+      return data.data.link;
     } catch (error) {
       console.error(error);
       showAlert('Có lỗi xảy ra khi tải ảnh lên Imgur.');
@@ -65,7 +66,7 @@ const CreateProduct = ({ navigation }) => {
   };
 
   const handleAddProduct = async () => {
-    if (!name || !price || !salePrice || !image) {
+    if (!name || !price || !salePrice || !image || !description) {
       showAlert('Vui lòng điền đầy đủ thông tin sản phẩm.');
       return;
     }
@@ -78,6 +79,7 @@ const CreateProduct = ({ navigation }) => {
       price: price.replace(/\./g, ''),
       sale_price: salePrice.replace(/\./g, ''),
       image: newImageUri,
+      description,
     };
 
     try {
@@ -112,6 +114,7 @@ const CreateProduct = ({ navigation }) => {
       price: price.replace(/\./g, ''),
       sale_price: salePrice.replace(/\./g, ''),
       image: newImageUri,
+      description,
     };
 
     try {
@@ -157,6 +160,7 @@ const CreateProduct = ({ navigation }) => {
     setName('');
     setPrice('');
     setSalePrice('');
+    setDescription('');
     setImage(null);
     setCurrentProduct(null);
   };
@@ -180,6 +184,7 @@ const CreateProduct = ({ navigation }) => {
     setName(product.name);
     setPrice(product.price);
     setSalePrice(product.sale_price);
+    setDescription(product.description);
     setImage(product.image);
     setModalVisible(true);
   };
@@ -194,11 +199,11 @@ const CreateProduct = ({ navigation }) => {
       <Image source={{ uri: item.image }} style={styles.productImage} />
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productPrice}>
-  Giá: {parseFloat(item.price.replace(/\./g, '')).toLocaleString()} VND
-</Text>
-<Text style={styles.salePrice}>
-  Giá khuyến mãi: {parseFloat(item.sale_price.replace(/\./g, '')).toLocaleString()} VND
-</Text>
+        Giá: {parseFloat(item.price.replace(/\./g, '')).toLocaleString()} VND
+      </Text>
+      <Text style={styles.salePrice}>
+        Giá khuyến mãi: {parseFloat(item.sale_price.replace(/\./g, '')).toLocaleString()} VND
+      </Text>
       <TouchableOpacity
         style={styles.updateButton}
         onPress={() => openUpdateModal(item)}
@@ -264,6 +269,13 @@ const CreateProduct = ({ navigation }) => {
               placeholderTextColor="#B0B0B0"
               value={salePrice}
               onChangeText={setSalePrice}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Mô tả sản phẩm"
+              placeholderTextColor="#B0B0B0"
+              value={description}
+              onChangeText={setDescription}
             />
             <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
               {image ? (
