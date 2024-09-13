@@ -31,24 +31,30 @@ const Cart = ({ navigation }) => {
 
   const handleCheckout = () => {
     if (cart.length === 0) {
-      setErrorModalVisible(true); // Hiển thị modal thông báo lỗi
+      setErrorModalVisible(true);
     } else {
-      setModalVisible(true); // Hiển thị modal thanh toán
+      setModalVisible(true);
     }
   };
 
   const confirmCheckout = () => {
-    setCart([]); // Xóa toàn bộ giỏ hàng
-    setCartCount(0); // Đặt lại số lượng giỏ hàng về 0
-    setModalVisible(false); // Đóng modal
+    setCart([]);
+    setCartCount(0);
+    setModalVisible(false);
   };
 
   const cancelCheckout = () => {
-    setModalVisible(false); // Đóng modal
+    setModalVisible(false);
   };
 
   const closeErrorModal = () => {
-    setErrorModalVisible(false); // Đóng modal thông báo lỗi
+    setErrorModalVisible(false);
+  };
+
+  const calculateTotalPrice = () => {
+    return cart.reduce((total, item) => {
+      return total + (parseFloat(item.sale_price) * item.quantity);
+    }, 0);
   };
 
   return (
@@ -61,7 +67,9 @@ const Cart = ({ navigation }) => {
             <Image source={{ uri: item.image }} style={styles.itemImage} />
             <View style={styles.detailsContainer}>
               <Text style={styles.itemName}>{item.name}</Text>
-              <Text style={styles.itemPrice}>{item.sale_price}</Text>
+              <Text style={styles.itemPrice}>
+                {parseFloat(item.sale_price).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              </Text>
               <View style={styles.quantityContainer}>
                 <TouchableOpacity onPress={() => handleDecrease(item)}>
                   <Text style={styles.quantityButton}>-</Text>
@@ -71,6 +79,9 @@ const Cart = ({ navigation }) => {
                   <Text style={styles.quantityButton}>+</Text>
                 </TouchableOpacity>
               </View>
+              <Text style={styles.totalPrice}>
+                Tổng giá: {(parseFloat(item.sale_price) * item.quantity).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              </Text>
               <TouchableOpacity style={styles.removeButton} onPress={() => removeFromCart(item.id)}>
                 <Icon name="trash-outline" size={24} color="#FFAA00" />
                 <Text style={styles.removeButtonText}> Xóa</Text>
@@ -81,15 +92,13 @@ const Cart = ({ navigation }) => {
         contentContainerStyle={styles.flatListContent}
       />
       <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
-        <Text style={styles.checkoutButtonText}>Thanh toán</Text>
+        <Text style={styles.checkoutButtonText}>
+          Thanh toán ({calculateTotalPrice().toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })})
+        </Text>
       </TouchableOpacity>
 
       {/* Modal thanh toán */}
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={modalVisible}
-      >
+      <Modal transparent={true} animationType="slide" visible={modalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Xác nhận thanh toán</Text>
@@ -107,11 +116,7 @@ const Cart = ({ navigation }) => {
       </Modal>
 
       {/* Modal thông báo lỗi khi giỏ hàng rỗng */}
-      <Modal
-        transparent={true}
-        animationType="slide"
-        visible={errorModalVisible}
-      >
+      <Modal transparent={true} animationType="slide" visible={errorModalVisible}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Icon name="alert-circle-outline" size={50} color="#FFAA00" />
@@ -175,6 +180,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
   },
+  totalPrice: {
+    color: '#FFAA00',
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
   removeButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -205,39 +215,38 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    justifyContent: 'center', // Đặt modal ở giữa màn hình
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', // Tối màu nền
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
   },
   modalContent: {
-    width: '80%', // Thay đổi width để modal không quá rộng
-    maxWidth: 400, // Giới hạn chiều rộng tối đa
+    width: '80%',
+    maxWidth: 400,
     padding: 20,
     backgroundColor: '#2A2A2A',
     borderRadius: 10,
     alignItems: 'center',
     elevation: 5,
-    justifyContent: 'center', // Căn giữa nội dung
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 10,
-    textAlign: 'center', // Căn giữa tiêu đề
+    textAlign: 'center',
   },
   modalButton: {
     backgroundColor: '#FFAA00',
     padding: 10,
     borderRadius: 8,
     marginTop: 10,
-    width: '100%', // Đảm bảo nút hoàn toàn chiều rộng
+    width: '100%',
   },
   modalButtonText: {
     color: '#1E1E1E',
     textAlign: 'center',
     fontSize: 16,
-    textTransform: 'bold'
+    fontWeight: 'bold',
   },
 });
 

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Login from '../screens/Authenticator/Login';
 import {
   View,
   Text,
@@ -62,6 +61,10 @@ const ProductList = () => {
     navigation.navigate('ProductDetail', { productId: product.id });
   };
 
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '0đ';
+  };
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -90,8 +93,10 @@ const ProductList = () => {
               <Image source={{ uri: item.image }} style={styles.productImage} />
             </TouchableOpacity>
             <Text style={styles.productName}>{item.name}</Text>
-            <Text style={styles.productPrice}>{item.price}</Text>
-            <Text style={styles.salePrice}>{item.sale_price}</Text>
+            <Text style={styles.productPrice}>{formatPrice(item.price)}</Text>
+            {item.sale_price && (
+              <Text style={styles.salePrice}>{formatPrice(item.sale_price)}</Text>
+            )}
             <TouchableOpacity 
               style={styles.button} 
               onPress={() => handleAddToCart(item)}

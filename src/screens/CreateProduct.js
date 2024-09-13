@@ -13,9 +13,15 @@ const CreateProduct = ({ navigation }) => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
+  const apiKey = '59214ae01d29f2e'; // Thay thế bằng Client ID của bạn
+
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchProducts();
+    });
+    
+    return unsubscribe;
+  }, [navigation]);
 
   const fetchProducts = async () => {
     try {
@@ -29,20 +35,49 @@ const CreateProduct = ({ navigation }) => {
     }
   };
 
+  const uploadImageToImgur = async (uri) => {
+    const formData = new FormData();
+    formData.append('image', {
+      uri,
+      type: 'image/jpeg',
+      name: 'image.jpg',
+    });
+
+    try {
+      const response = await fetch(`https://api.imgur.com/3/image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Client-ID ${apiKey}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message);
+      }
+      return data.data.link; // URL của ảnh đã tải lên
+    } catch (error) {
+      console.error(error);
+      showAlert('Có lỗi xảy ra khi tải ảnh lên Imgur.');
+      return null;
+    }
+  };
+
   const handleAddProduct = async () => {
     if (!name || !price || !salePrice || !image) {
       showAlert('Vui lòng điền đầy đủ thông tin sản phẩm.');
       return;
     }
 
-    const formattedPrice = parseInt(price.replace(/\./g, ''), 10).toLocaleString();
-    const formattedSalePrice = parseInt(salePrice.replace(/\./g, ''), 10).toLocaleString();
+    const newImageUri = await uploadImageToImgur(image);
+    if (!newImageUri) return;
 
     const newProduct = {
       name,
-      price: formattedPrice,
-      sale_price: formattedSalePrice,
-      image,
+      price: price.replace(/\./g, ''),
+      sale_price: salePrice.replace(/\./g, ''),
+      image: newImageUri,
     };
 
     try {
@@ -69,14 +104,14 @@ const CreateProduct = ({ navigation }) => {
   const handleUpdateProduct = async () => {
     if (!currentProduct) return;
 
-    const formattedPrice = parseInt(price.replace(/\./g, ''), 10).toLocaleString();
-    const formattedSalePrice = parseInt(salePrice.replace(/\./g, ''), 10).toLocaleString();
+    const newImageUri = await uploadImageToImgur(image);
+    if (!newImageUri) return;
 
     const updatedProduct = {
       name,
-      price: formattedPrice,
-      sale_price: formattedSalePrice,
-      image,
+      price: price.replace(/\./g, ''),
+      sale_price: salePrice.replace(/\./g, ''),
+      image: newImageUri,
     };
 
     try {
@@ -159,11 +194,11 @@ const CreateProduct = ({ navigation }) => {
       <Image source={{ uri: item.image }} style={styles.productImage} />
       <Text style={styles.productName}>{item.name}</Text>
       <Text style={styles.productPrice}>
-        Giá: {parseInt(item.price.replace(/\./g, ''), 10).toLocaleString()} VND
-      </Text>
-      <Text style={styles.salePrice}>
-        Giá khuyến mãi: {parseInt(item.sale_price.replace(/\./g, ''), 10).toLocaleString()} VND
-      </Text>
+  Giá: {parseFloat(item.price.replace(/\./g, '')).toLocaleString()} VND
+</Text>
+<Text style={styles.salePrice}>
+  Giá khuyến mãi: {parseFloat(item.sale_price.replace(/\./g, '')).toLocaleString()} VND
+</Text>
       <TouchableOpacity
         style={styles.updateButton}
         onPress={() => openUpdateModal(item)}
@@ -309,7 +344,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: '100%',
-    height: 80,
+    height: 130,
     borderRadius: 8,
   },
   productName: {
