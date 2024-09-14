@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import { useCart } from './CartData';
+import styles from '../styles/ProductDetailStyle';
 
 const ProductDetail = ({ route }) => {
   const { productId } = route.params;
@@ -28,6 +29,10 @@ const ProductDetail = ({ route }) => {
     }
   };
 
+  const formatPrice = (price) => {
+    return price ? price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '0đ';
+  };
+
   if (!product) {
     return <Text style={styles.loadingText}>Đang tải sản phẩm...</Text>;
   }
@@ -38,9 +43,9 @@ const ProductDetail = ({ route }) => {
       <Text style={styles.productName}>{product.name}</Text>
       <View style={styles.priceContainer}>
         {product.sale_price && (
-          <Text style={styles.salePrice}>{product.sale_price}đ</Text>
+          <Text style={styles.Price}>Giá gốc: {formatPrice(product.price)}đ</Text>
         )}
-        <Text style={styles.productPrice}>{product.price}đ</Text>
+        <Text style={styles.salePrice}>Giá Sale: {formatPrice(product.sale_price)}đ</Text>
       </View>
       <View style={styles.descriptionContainer}>
         <Text style={styles.descriptionTitle}>Mô tả sản phẩm:</Text>
@@ -52,74 +57,5 @@ const ProductDetail = ({ route }) => {
     </ScrollView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1E1E1E',
-  },
-  productImage: {
-    width: '100%',
-    height: 200, // Giảm chiều cao hình ảnh
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
-    marginVertical: 20, // Thay đổi để tạo khoảng cách từ trên và dưới
-    resizeMode: 'contain', // Đảm bảo hình ảnh không bị cắt
-},
-  productName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    margin: 16,
-  },
-  priceContainer: {
-    flexDirection: 'column', // Đặt giá và giá giảm theo cột
-    alignItems: 'flex-start',
-    marginHorizontal: 16,
-    marginBottom: 10,
-  },
-  productPrice: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFAA00',
-  },
-  salePrice: {
-    fontSize: 20,
-    color: '#FFFFFF',
-    textDecorationLine: 'line-through',
-  },
-  descriptionContainer: {
-    backgroundColor: '#2A2A2A',
-    padding: 16,
-    borderRadius: 8,
-    margin: 16,
-  },
-  descriptionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFAA00',
-    marginBottom: 8,
-  },
-  description: {
-    color: '#FFFFFF',
-    lineHeight: 20,
-  },
-  addToCartButton: {
-    backgroundColor: '#FFAA00',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    margin: 16,
-  },
-  buttonText: {
-    color: '#1E1E1E',
-    fontWeight: 'bold',
-  },
-  loadingText: {
-    color: '#FFFFFF',
-    textAlign: 'center',
-    marginTop: 20,
-  },
-});
 
 export default ProductDetail;

@@ -87,7 +87,7 @@ const TabNavigator = () => {
         }} 
       />
       <Tab.Screen 
-        name="Create" 
+        name="Create/Mod" 
         component={CreateProduct} 
         options={{
           tabBarIcon: ({ color }) => (
